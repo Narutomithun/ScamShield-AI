@@ -2,6 +2,8 @@ import os, pickle, re, math, joblib
 from urllib.parse import urlparse, urlsplit
 
 import numpy as np
+import torch
+import torch.nn.functional as F
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
@@ -21,6 +23,16 @@ with open(os.path.join(MODELS_DIR, "xgboost_phishing_model (1).pkl"), "rb") as f
     phishing_model = pickle.load(f)
 
 text_model = joblib.load(os.path.join(MODELS_DIR, "text_model.pkl"))
+
+with open(os.path.join(MODELS_DIR, "scam_model.pkl"), "rb") as f:
+    scam_model = pickle.load(f)
+
+with open(os.path.join(MODELS_DIR, "scam_tokenizer.pkl"), "rb") as f:
+    scam_tokenizer = pickle.load(f)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+scam_model.to(device)
+scam_model.eval()
 
 # ── URL feature extraction ─────────────────────────────────────────────────────
 # Features match exactly what xgboost_phishing_model (1).pkl was trained on:
@@ -156,6 +168,40 @@ def predict_fakenews():
             "confidence": round(confidence, 2),
             "fake_score": round(float(proba[0]) * 100, 2),
             "real_score": round(float(proba[1]) * 100, 2),
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/predict/scamcall", methods=["POST"])
+def predict_scamcall():
+    data = request.get_json(force=True)
+    text = data.get("text", "").strip()
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+
+    try:
+        inputs = scam_tokenizer(text, truncation=True, padding="max_length", max_length=128, return_tensors="pt")
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+        
+        with torch.no_grad():
+            outputs = scam_model(**inputs)
+            logits = outputs.logits
+            probs = F.softmax(logits, dim=-1)[0]
+        
+        # 0 = NORMAL, 1 = FRAUD
+        safe_prob = float(probs[0])
+        fraud_prob = float(probs[1])
+        
+        pred = 1 if fraud_prob > safe_prob else 0
+        label = "FRAUD" if pred == 1 else "NORMAL"
+        confidence = fraud_prob * 100 if pred == 1 else safe_prob * 100
+
+        return jsonify({
+            "label":      label,
+            "confidence": round(confidence, 2),
+            "fraud_score": round(fraud_prob * 100, 2),
+            "safe_score": round(safe_prob * 100, 2),
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
