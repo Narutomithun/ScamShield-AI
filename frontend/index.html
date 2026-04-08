@@ -278,10 +278,9 @@
       margin-bottom: 1rem;
     }
 
-    textarea {
+    textarea,
+    input[type="url"] {
       width: 100%;
-      min-height: 120px;
-      resize: vertical;
       background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -292,15 +291,46 @@
       line-height: 1.6;
       outline: none;
       transition: border-color .25s, box-shadow .25s;
+      box-sizing: border-box;
     }
 
-    textarea::placeholder {
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    input[type="url"] {
+      height: 120px;
+    }
+
+    textarea::placeholder,
+    input[type="url"]::placeholder {
       color: #4a5568;
     }
 
-    textarea:focus {
+    textarea:focus,
+    input[type="url"]:focus {
       border-color: rgba(99, 102, 241, .55);
       box-shadow: 0 0 0 3px rgba(99, 102, 241, .12);
+    }
+
+    input[type="url"].url-invalid {
+      border-color: rgba(239, 68, 68, .65) !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, .12) !important;
+    }
+
+    .url-error-msg {
+      display: none;
+      align-items: center;
+      gap: .35rem;
+      margin-top: .45rem;
+      font-size: .78rem;
+      color: var(--risk);
+      font-weight: 500;
+    }
+
+    .url-error-msg.visible {
+      display: flex;
     }
 
     .char-count {
@@ -595,7 +625,7 @@
 
     <div class="stats" role="list">
       <div class="stat" role="listitem">
-        <div class="stat-num">99.1%</div>
+        <div class="stat-num">96%</div>
         <div class="stat-label">Phishing Accuracy</div>
       </div>
       <div class="stat" role="listitem">
@@ -623,9 +653,13 @@
       </div>
 
       <div class="input-wrap">
-        <textarea id="phishing-input" placeholder="https://example-bank-secure-login.com/reset" maxlength="2000"
-          aria-label="URL to check for phishing" oninput="updateCharCount('phishing')"></textarea>
+        <input type="url" id="phishing-input" placeholder="https://example-bank-secure-login.com/reset" maxlength="2000"
+          aria-label="URL to check for phishing" oninput="validatePhishingUrl(); updateCharCount('phishing')"
+          onpaste="setTimeout(()=>{ validatePhishingUrl(); updateCharCount('phishing'); }, 0)">
         <span class="char-count" id="phishing-count">0 / 2000</span>
+      </div>
+      <div class="url-error-msg" id="phishing-url-error">
+        &#9888;&#65039; Please enter a valid URL starting with <strong>http://</strong> or <strong>https://</strong>
       </div>
 
       <button class="btn btn-phishing" id="phishing-btn" onclick="checkPhishing()">
@@ -807,10 +841,53 @@
       setTimeout(() => { bar.style.width = targetWidth; }, 50);
     }
 
+    // ── URL validation ────────────────────────────────────────────────────────
+    function isValidUrl(str) {
+      try {
+        const u = new URL(str);
+        return u.protocol === "http:" || u.protocol === "https:";
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function validatePhishingUrl() {
+      const input = document.getElementById("phishing-input");
+      const errMsg = document.getElementById("phishing-url-error");
+      const val = input.value.trim();
+
+      if (val === "") {
+        // empty — reset to neutral
+        input.classList.remove("url-invalid");
+        errMsg.classList.remove("visible");
+      } else if (isValidUrl(val)) {
+        input.classList.remove("url-invalid");
+        errMsg.classList.remove("visible");
+      } else {
+        input.classList.add("url-invalid");
+        errMsg.classList.add("visible");
+      }
+    }
+
     // ── API calls ─────────────────────────────────────────────────────────────
     async function checkPhishing() {
-      const text = document.getElementById("phishing-input").value.trim();
-      if (!text) { alert("Please enter a URL first."); return; }
+      const input = document.getElementById("phishing-input");
+      const text = input.value.trim();
+
+      if (!text) {
+        input.classList.add("url-invalid");
+        document.getElementById("phishing-url-error").classList.add("visible");
+        input.focus();
+        return;
+      }
+
+      if (!isValidUrl(text)) {
+        input.classList.add("url-invalid");
+        document.getElementById("phishing-url-error").classList.add("visible");
+        input.focus();
+        return;
+      }
+
       setLoading("phishing", true);
       try {
         const res = await fetch(`${API}/predict/phishing`, {

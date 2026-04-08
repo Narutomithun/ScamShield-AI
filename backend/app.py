@@ -1,5 +1,5 @@
-import os, pickle, re, joblib
-from urllib.parse import urlparse
+import os, pickle, re, math, joblib
+from urllib.parse import urlparse, urlsplit
 
 import numpy as np
 from flask import Flask, request, jsonify, send_from_directory
@@ -17,66 +17,91 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.join(BASE_DIR, "..")
 
 # ── Load models ────────────────────────────────────────────────────────────────
-with open(os.path.join(MODELS_DIR, "phishing_model.pkl"), "rb") as f:
+with open(os.path.join(MODELS_DIR, "xgboost_phishing_model (1).pkl"), "rb") as f:
     phishing_model = pickle.load(f)
 
 text_model = joblib.load(os.path.join(MODELS_DIR, "text_model.pkl"))
 
-with open(os.path.join(MODELS_DIR, "feature_columns.pkl"), "rb") as f:
-    feature_columns = pickle.load(f)
-
 # ── URL feature extraction ─────────────────────────────────────────────────────
+# Features match exactly what xgboost_phishing_model (1).pkl was trained on:
+# url_length, num_dots, num_hyphens, num_underscores, num_slashes, num_digits,
+# num_special_chars, has_at_symbol, has_double_slash, has_ip_address, has_https,
+# num_subdomains, domain_length, tld_length, subdomain_length,
+# has_suspicious_words, has_port, num_query_params, num_fragments, url_entropy,
+# digit_ratio, letter_ratio, is_common_tld, path_length, has_redirect
 
-def has_ip(url):
-    ip_pattern = re.compile(
-        r"(([01]?\d\d?|2[0-4]\d|25[0-5])\.){3}([01]?\d\d?|2[0-4]\d|25[0-5])"
-    )
-    return 1 if ip_pattern.search(url) else 0
+SUSPICIOUS_WORDS = [
+    "login", "signin", "verify", "account", "update", "secure", "banking",
+    "confirm", "password", "credential", "paypal", "ebay", "amazon", "apple",
+    "microsoft", "google", "facebook", "free", "lucky", "winner", "prize",
+    "urgent", "suspended", "limited", "click", "here", "now", "paypal",
+]
+COMMON_TLDS = {
+    "com", "org", "net", "edu", "gov", "io", "co", "uk", "us", "ca",
+    "de", "fr", "au", "in", "jp", "br", "it", "es", "ru", "cn",
+}
+IP_PATTERN = re.compile(
+    r"(([01]?\d\d?|2[0-4]\d|25[0-5])\.){3}([01]?\d\d?|2[0-4]\d|25[0-5])"
+)
+
+def _url_entropy(s: str) -> float:
+    if not s:
+        return 0.0
+    freq = {}
+    for c in s:
+        freq[c] = freq.get(c, 0) + 1
+    n = len(s)
+    return -sum((v / n) * math.log2(v / n) for v in freq.values())
 
 def get_url_features(url: str) -> list:
-    """Extract the 30 numerical features from a URL."""
-    parsed = urlparse(url if url.startswith("http") else "http://" + url)
+    """Extract the 25 features expected by the XGBoost phishing model."""
+    full_url = url if url.startswith("http") else "http://" + url
+    parsed   = urlparse(full_url)
     hostname = parsed.hostname or ""
     path     = parsed.path or ""
-    full     = url
+    query    = parsed.query or ""
+    fragment = parsed.fragment or ""
 
-    dots_in_host = hostname.count(".")
-    subdomains   = dots_in_host - 1 if dots_in_host >= 2 else dots_in_host
+    # TLD & subdomain breakdown
+    host_parts  = hostname.split(".")
+    tld         = host_parts[-1] if host_parts else ""
+    domain_part = host_parts[-2] if len(host_parts) >= 2 else hostname
+    subdomain   = ".".join(host_parts[:-2]) if len(host_parts) > 2 else ""
 
-    features = {
-        "UsingIP":            has_ip(url),
-        "LongURL":            1 if len(url) >= 75 else (0 if len(url) < 54 else 0),
-        "ShortURL":           1 if any(s in url for s in ["bit.ly","goo.gl","tinyurl","ow.ly","t.co","tr.im","is.gd","cli.gs","yfrog.com","migre.me","ff.im","tiny.cc","url4.eu","twit.ac","su.pr","twurl.nl","snipurl.com","short.to","BudURL.com","ping.fm","post.ly","Just.as","bkite.com","snipr.com","flic.kr","loopt.us","doiop.com","short.ie","kl.am","wp.me","rubyurl.com","om.ly","to.ly","bit.do","t.co","lnkd.in","db.tt","qr.ae","adf.ly","goo.gl","bitly.com","cur.lv","tinyurl.com","ow.ly","bit.ly","ity.im","q.gs","is.gd","po.st","bc.vc","twitthis.com","u.to","j.mp","buzurl.com","cutt.us","u.bb","yourls.org","x.co","prettylinkpro.com","scrnch.me","filoops.info","vzturl.com","qr.net","1url.com","tweez.me","v.gd","tr.im","link.zip.net"]) else 0,
-        "Symbol@":            1 if "@" in url else 0,
-        "Redirecting//":      1 if url.count("//") > 1 else 0,
-        "PrefixSuffix-":      1 if "-" in hostname else 0,
-        "SubDomains":         0 if subdomains == 1 else (1 if subdomains == 2 else 1),
-        "HTTPS":              1 if parsed.scheme == "https" else 0,
-        "DomainRegLen":       0,   # requires WHOIS, default safe
-        "Favicon":            0,
-        "NonStdPort":         1 if parsed.port and parsed.port not in (80, 443) else 0,
-        "HTTPSDomainURL":     1 if "https" in hostname else 0,
-        "RequestURL":         0,
-        "AnchorURL":          0,
-        "LinksInScriptTags":  0,
-        "ServerFormHandler":  0,
-        "InfoEmail":          1 if "mailto:" in url else 0,
-        "AbnormalURL":        0 if hostname and hostname in url else 1,
-        "WebsiteForwarding":  0,
-        "StatusBarCust":      0,
-        "DisableRightClick":  0,
-        "UsingPopupWindow":   0,
-        "IframeRedirection":  0,
-        "AgeofDomain":        0,
-        "DNSRecording":       0,
-        "WebsiteTraffic":     0,
-        "PageRank":           0,
-        "GoogleIndex":        1,
-        "LinksPointingToPage":0,
-        "StatsReport":        0,
-    }
+    url_lower = url.lower()
+    letters   = sum(c.isalpha() for c in url)
+    digits    = sum(c.isdigit() for c in url)
+    n         = len(url) or 1
+    specials  = sum(not c.isalnum() and c not in "/:.-_?=#&@%+" for c in url)
 
-    return [features[col] for col in feature_columns]
+    features = [
+        len(url),                                          # url_length
+        url.count("."),                                    # num_dots
+        url.count("-"),                                    # num_hyphens
+        url.count("_"),                                    # num_underscores
+        url.count("/"),                                    # num_slashes
+        digits,                                            # num_digits
+        specials,                                          # num_special_chars
+        1 if "@" in url else 0,                            # has_at_symbol
+        1 if url.count("//") > 1 else 0,                  # has_double_slash
+        1 if IP_PATTERN.search(hostname) else 0,           # has_ip_address
+        1 if parsed.scheme == "https" else 0,              # has_https
+        max(0, len(host_parts) - 2),                       # num_subdomains
+        len(domain_part),                                  # domain_length
+        len(tld),                                          # tld_length
+        len(subdomain),                                    # subdomain_length
+        1 if any(w in url_lower for w in SUSPICIOUS_WORDS) else 0,  # has_suspicious_words
+        1 if (parsed.port and parsed.port not in (80, 443)) else 0, # has_port
+        len(query.split("&")) if query else 0,             # num_query_params
+        1 if fragment else 0,                              # num_fragments
+        _url_entropy(url),                                 # url_entropy
+        digits / n,                                        # digit_ratio
+        letters / n,                                       # letter_ratio
+        1 if tld.lower() in COMMON_TLDS else 0,            # is_common_tld
+        len(path),                                         # path_length
+        1 if url.count("//") > 1 or "redirect" in url_lower or "url=" in url_lower else 0,  # has_redirect
+    ]
+    return features
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
