@@ -8,42 +8,49 @@
   <meta name="description" content="AI-powered scam detection — check URLs, news, and calls instantly." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+    rel="stylesheet" />
   <style>
     /* ───── Reset & Base Variables ───── */
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
     :root {
-      --bg: #000000; /* Deep black for true minimalist luxury */
+      --bg: #000000;
       --surface: #0a0a0a;
       --surface-hover: #121212;
       --border: #262626;
       --border-hover: #404040;
-      
+
       --text: #fafafa;
       --text-muted: #a3a3a3;
-      
+
       --accent: #ffffff;
       --safe: #10b981;
       --risk: #ef4444;
 
       --font-sans: 'Inter', sans-serif;
       --font-display: 'Space Grotesk', sans-serif;
-      
-      --radius: 12px;
+      --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
+
+      --radius: 16px;
       --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       font-family: var(--font-sans);
       background: var(--bg);
-      background-image: 
+      background-image:
         radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
         linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -64,42 +71,67 @@
       animation: float 10s ease-in-out infinite alternate;
       pointer-events: none;
     }
-    .blob-1 { top: -20%; left: -10%; width: 50vw; height: 50vw; background: rgba(59, 130, 246, 0.12); }
-    .blob-2 { bottom: -20%; right: -10%; width: 40vw; height: 40vw; background: rgba(139, 92, 246, 0.08); animation-direction: alternate-reverse; animation-duration: 15s; }
+
+    .blob-1 {
+      top: -20%;
+      left: -10%;
+      width: 50vw;
+      height: 50vw;
+      background: rgba(59, 130, 246, 0.12);
+    }
+
+    .blob-2 {
+      bottom: -20%;
+      right: -10%;
+      width: 40vw;
+      height: 40vw;
+      background: rgba(139, 92, 246, 0.08);
+      animation-direction: alternate-reverse;
+      animation-duration: 15s;
+    }
 
     @keyframes float {
-      0% { transform: translateY(0) scale(1); }
-      100% { transform: translateY(40px) scale(1.1); }
+      0% {
+        transform: translateY(0) scale(1);
+      }
+
+      100% {
+        transform: translateY(40px) scale(1.1);
+      }
     }
 
-    /* ───── Animations ───── */
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
 
-    @keyframes pulseSoft {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.7; transform: scale(0.95); }
-    }
-
-    @keyframes glowSweep {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .animate-up {
       animation: fadeInUp 0.8s var(--transition) forwards;
       opacity: 0;
     }
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
+
+    .delay-1 {
+      animation-delay: 0.1s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.3s;
+    }
 
     /* ───── Layout ───── */
     .container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 0 1.5rem;
     }
@@ -107,7 +139,8 @@
     /* ───── Navbar ───── */
     nav {
       position: fixed;
-      top: 0; width: 100%;
+      top: 0;
+      width: 100%;
       z-index: 100;
       background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(12px);
@@ -116,7 +149,7 @@
     }
 
     .nav-content {
-      height: 64px;
+      height: 72px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -125,53 +158,64 @@
     .logo {
       font-family: var(--font-display);
       font-weight: 700;
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       letter-spacing: -0.5px;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.6rem;
       color: var(--text);
       text-decoration: none;
     }
 
-    .live-badge {
+    .nav-links {
       display: flex;
+      gap: 2rem;
       align-items: center;
-      gap: 0.4rem;
-      font-size: 0.75rem;
-      font-weight: 500;
-      padding: 0.3rem 0.7rem;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.4rem 0.5rem;
       border-radius: 99px;
-      color: var(--safe);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      border: 1px solid var(--border);
     }
 
-    .live-dot {
-      width: 6px; height: 6px;
-      background: var(--safe);
-      border-radius: 50%;
-      animation: pulseSoft 2s infinite;
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      padding: 0.4rem 1rem;
+      border-radius: 99px;
     }
 
-    /* ───── Hero Section ───── */
+    .nav-link:hover {
+      color: var(--text);
+    }
+
+    .nav-link.active {
+      color: var(--bg);
+      background: var(--text);
+    }
+
+    /* ───── SPA Page Routing ───── */
+    .page {
+      display: none;
+      min-height: calc(100vh - 100px);
+      position: relative;
+      overflow: hidden;
+      padding-top: 100px;
+    }
+
+    .page.active {
+      display: block;
+      animation: fadeInUp 0.5s ease forwards;
+    }
+
+    /* ───── Hero Component ───── */
     .hero {
-      padding: 10rem 0 5rem;
+      padding: 8rem 0 5rem;
       text-align: center;
       position: relative;
-    }
-
-    /* Subtle background glow behind hero */
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 30%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 400px; height: 400px;
-      z-index: -1;
-      pointer-events: none;
     }
 
     .hero-badge {
@@ -182,45 +226,38 @@
       border: 1px solid var(--border);
       padding: 0.4rem 1rem;
       border-radius: 99px;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
       background: var(--surface);
     }
 
     .hero h1 {
       font-family: var(--font-display);
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-size: clamp(3rem, 6vw, 4.5rem);
       line-height: 1.1;
       letter-spacing: -1.5px;
       margin-bottom: 1.5rem;
       background: linear-gradient(180deg, #ffffff 0%, #a3a3a3 100%);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .hero p {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       color: var(--text-muted);
-      max-width: 600px;
+      max-width: 650px;
       margin: 0 auto;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
-    /* ───── Models Intro Grid ───── */
+    /* Models Intro Grid */
     .models-section {
-      padding: 2rem 0 6rem;
-    }
-    
-    .section-title {
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-      margin-bottom: 2rem;
-      text-align: center;
-      color: var(--text);
+      padding: 2rem 0 8rem;
     }
 
     .model-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1.5rem;
     }
 
@@ -228,38 +265,38 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 2rem;
+      padding: 2.5rem;
       transition: var(--transition);
-      position: relative;
-      overflow: hidden;
     }
 
     .model-card:hover {
       border-color: var(--border-hover);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
     }
 
     .model-icon {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      width: 48px; height: 48px;
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      width: 54px;
+      height: 54px;
       background: var(--bg);
       border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 12px;
+      border-radius: 14px;
     }
 
     .model-title {
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       font-weight: 600;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-family: var(--font-display);
       color: var(--text);
     }
 
     .model-desc {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: var(--text-muted);
       line-height: 1.6;
     }
@@ -273,141 +310,55 @@
       letter-spacing: 1px;
     }
 
-    /* ───── App Interaction Hub ───── */
-    .app-hub {
-      padding: 4rem 0 8rem;
-    }
+    /* ========================================= */
+    /* SPECIFIC LAYOUTS & BACKGROUNDS PER MODEL  */
+    /* ========================================= */
 
-    .app-container {
-      background: var(--surface);
-      border: 1px solid var(--border);
+    /* Generic UI Elements */
+    .glass-panel {
+      background: rgba(10, 10, 10, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: var(--radius);
-      overflow: hidden;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      padding: 3rem;
     }
 
-    /* Tabs */
-    .app-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      background: #050505;
-    }
-
-    .tab-btn {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 1.25rem 1rem;
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition);
-      border-bottom: 2px solid transparent;
-    }
-
-    .tab-btn:hover {
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .tab-btn.active {
-      color: var(--text);
-      border-bottom-color: var(--text);
-      background: var(--surface);
-    }
-
-    /* Tab Content */
-    .tab-content {
-      display: none;
-      padding: 2.5rem;
-      animation: fadeInUp 0.4s ease forwards;
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-
-    .tab-header {
-      margin-bottom: 1.5rem;
-    }
-
-    .tab-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 0.2rem;
-    }
-
-    .tab-subtitle {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    /* Inputs */
-    .input-wrap {
-      position: relative;
-      margin-bottom: 1.5rem;
-    }
-
-    textarea, input[type="url"] {
+    textarea,
+    input[type="url"] {
       width: 100%;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 12px;
       padding: 1.25rem;
       color: var(--text);
       font-family: inherit;
       font-size: 1rem;
-      line-height: 1.5;
       outline: none;
       transition: var(--transition);
       box-sizing: border-box;
       resize: vertical;
     }
 
-    textarea { min-height: 140px; }
-    input[type="url"] { height: 60px; }
-
-    textarea:focus, input[type="url"]:focus {
+    textarea:focus,
+    input[type="url"]:focus {
       border-color: #525252;
       box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
     }
 
-    textarea::placeholder, input[type="url"]::placeholder {
+    textarea::placeholder,
+    input[type="url"]::placeholder {
       color: #525252;
     }
 
-    .char-count {
-      position: absolute;
-      bottom: 1rem;
-      right: 1rem;
-      font-size: 0.75rem;
-      color: #525252;
-      background: var(--bg);
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-    }
-
-    .error-msg {
-      display: none;
-      color: var(--risk);
-      font-size: 0.85rem;
-      margin-top: 0.5rem;
-      font-weight: 500;
-    }
-
-    .error-msg.visible {
-      display: block;
-    }
-
-    /* Primary Button */
     .btn-submit {
       width: 100%;
-      padding: 1rem 1.5rem;
+      padding: 1.25rem 1.5rem;
       background: var(--text);
       color: var(--bg);
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       font-family: var(--font-sans);
       font-size: 1rem;
       font-weight: 600;
@@ -415,17 +366,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
       transition: var(--transition);
+      margin-top: 1.5rem;
     }
 
     .btn-submit:hover:not(:disabled) {
       background: #e5e5e5;
-      transform: translateY(-1px);
-    }
-
-    .btn-submit:active:not(:disabled) {
-      transform: translateY(0);
     }
 
     .btn-submit:disabled {
@@ -434,13 +380,301 @@
       cursor: not-allowed;
     }
 
-    /* ───── Results Panel ───── */
+    .input-wrap {
+      position: relative;
+    }
+
+    .char-count {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      font-size: 0.75rem;
+      color: #525252;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    /* ─── 1. PHISHING LAYOUT ─── */
+    .phishing-bg {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-image: repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(16, 185, 129, 0.04) 100px, rgba(16, 185, 129, 0.04) 102px);
+      animation: panLine 20s linear infinite;
+      mask-image: radial-gradient(circle at top, black 0%, transparent 60%);
+      -webkit-mask-image: radial-gradient(circle at top, black 0%, transparent 60%);
+    }
+
+    @keyframes panLine {
+      to {
+        background-position: 400px 0;
+      }
+    }
+
+    .phishing-layout {
+      text-align: center;
+      max-width: 800px;
+      margin: 4rem auto;
+    }
+
+    .phishing-layout h2 {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .phishing-layout p {
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+    }
+
+    .url-bar-container {
+      display: flex;
+      gap: 0.5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .url-bar-container .input-wrap {
+      flex: 1;
+      margin: 0;
+    }
+
+    .url-bar-container input {
+      height: 60px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      box-shadow: none !important;
+      font-size: 1.1rem;
+    }
+
+    .url-bar-container .btn-submit {
+      margin: 0;
+      width: auto;
+      padding: 0 2rem;
+      border-radius: 12px;
+    }
+
+    /* ─── 2. FAKE NEWS LAYOUT ─── */
+    .fakenews-bg {
+      position: absolute;
+      top: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80vw;
+      height: 80vw;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      z-index: -1;
+      box-shadow: 0 0 100px rgba(255, 255, 255, 0.01) inset;
+      animation: pulseRadar 8s ease-out infinite;
+    }
+
+    .fakenews-bg::after {
+      content: '';
+      position: absolute;
+      inset: 20%;
+      border-radius: 50%;
+      border: 1px dashed rgba(255, 255, 255, 0.04);
+    }
+
+    @keyframes pulseRadar {
+      0% {
+        transform: translateX(-50%) scale(0.8);
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateX(-50%) scale(1.3);
+        opacity: 0;
+      }
+    }
+
+    .fakenews-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: stretch;
+      margin: 4rem auto;
+    }
+
+    .fn-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .fn-info h2 {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .fn-info p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      line-height: 1.7;
+    }
+
+    .fn-info .badge {
+      display: inline-flex;
+      width: fit-content;
+      background: rgba(59, 130, 246, 0.1);
+      color: #60a5fa;
+      padding: 0.3rem 0.8rem;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .fn-editor textarea {
+      min-height: 300px;
+      font-size: 1.05rem;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    /* ─── 3. SCAM CALL LAYOUT ─── */
+    .scamcall-bg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 35vh;
+      z-index: -1;
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      align-items: flex-end;
+      opacity: 0.15;
+      mask-image: linear-gradient(to top, black, transparent);
+      -webkit-mask-image: linear-gradient(to top, black, transparent);
+    }
+
+    .scamcall-bg .wave-bar {
+      width: 3vw;
+      max-width: 20px;
+      background: var(--text);
+      border-radius: 8px 8px 0 0;
+      animation: eq 1.2s ease-in-out infinite alternate;
+    }
+
+    .scamcall-bg .wave-bar:nth-child(even) {
+      animation-delay: -0.8s;
+      background: var(--risk);
+    }
+
+    .scamcall-bg .wave-bar:nth-child(3n) {
+      animation-delay: -0.4s;
+      background: var(--safe);
+    }
+
+    @keyframes eq {
+      0% {
+        height: 10%;
+      }
+
+      100% {
+        height: 90%;
+      }
+    }
+
+    .scamcall-layout {
+      max-width: 700px;
+      margin: 4rem auto;
+    }
+
+    .scamcall-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .scamcall-header h2 {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .terminal-window {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .terminal-header {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #334155;
+    }
+
+    .terminal-dot.r {
+      background: #ef4444;
+    }
+
+    .terminal-dot.y {
+      background: #eab308;
+    }
+
+    .terminal-dot.g {
+      background: #22c55e;
+    }
+
+    .terminal-window textarea {
+      background: transparent;
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: #94a3b8;
+      height: 250px;
+      padding: 0;
+      box-shadow: none !important;
+    }
+
+    .terminal-window textarea:focus {
+      border: none;
+    }
+
+    .terminal-window textarea::placeholder {
+      color: #475569;
+    }
+
+    .terminal-window .btn-submit {
+      background: #ffffff;
+      color: #000;
+      margin-top: 1rem;
+    }
+
+    /* ───── RESULTS PANEL UNIVERSAL ───── */
     .result-panel {
       margin-top: 2rem;
       border-top: 1px solid var(--border);
       padding-top: 2rem;
       display: none;
       animation: fadeInUp 0.5s ease forwards;
+      background: var(--bg);
+      padding: 2rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
     }
 
     .result-panel.visible {
@@ -451,50 +685,54 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
 
     .verdict-info h3 {
-      font-size: 1.5rem;
+      font-size: 1.7rem;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.25rem;
+      gap: 0.75rem;
+      margin-bottom: 0.3rem;
     }
-    
-    .verdict-info.safe h3 { color: var(--safe); }
-    .verdict-info.danger h3 { color: var(--risk); }
-    
+
+    .verdict-info.safe h3 {
+      color: var(--safe);
+    }
+
+    .verdict-info.danger h3 {
+      color: var(--risk);
+    }
+
     .confidence-text {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: var(--text-muted);
     }
 
-    /* Progress/Score Bars */
     .score-breakdown {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.25rem;
     }
 
     .score-item {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
 
     .score-label {
       display: flex;
       justify-content: space-between;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 500;
       color: var(--text-muted);
     }
 
     .track {
       width: 100%;
-      height: 6px;
+      height: 8px;
       background: var(--border);
       border-radius: 99px;
       overflow: hidden;
@@ -505,10 +743,28 @@
       border-radius: 99px;
       transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
       width: 0%;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
 
-    .fill.safe-fill { background: var(--safe); }
-    .fill.risk-fill { background: var(--risk); }
+    .fill.safe-fill {
+      background: var(--safe);
+    }
+
+    .fill.risk-fill {
+      background: var(--risk);
+    }
+
+    .error-msg {
+      display: none;
+      color: var(--risk);
+      font-size: 0.85rem;
+      padding-top: 0.5rem;
+      text-align: left;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
 
     /* Footer */
     footer {
@@ -517,131 +773,173 @@
       text-align: center;
       color: var(--text-muted);
       font-size: 0.85rem;
+      margin-top: 4rem;
     }
 
     /* Responsive */
-    @media (max-width: 640px) {
-      .app-tabs { flex-direction: column; }
-      .tab-btn { border-bottom: 1px solid var(--border); text-align: left; }
-      .tab-content { padding: 1.5rem; }
-      .hero h1 { font-size: 2.2rem; }
+    @media (max-width: 768px) {
+      .fakenews-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .url-bar-container {
+        flex-direction: column;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+
+      .url-bar-container input {
+        border: 1px solid var(--border);
+        background: var(--surface);
+      }
+
+      .url-bar-container .btn-submit {
+        width: 100%;
+        padding: 1.25rem;
+      }
     }
   </style>
 </head>
 
 <body>
-  <!-- Ambient Background Accents -->
+  <!-- Global Ambient Body Blobs -->
   <div class="ambient-blob blob-1"></div>
   <div class="ambient-blob blob-2"></div>
 
   <!-- Navigation -->
   <nav>
     <div class="container nav-content">
-      <a href="#" class="logo">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      <a href="#" class="logo" onclick="showPage('home', event)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
         ScamShield AI
       </a>
-      <div class="live-badge">
-        <div class="live-dot"></div> System Active
+      <div class="nav-links">
+        <a class="nav-link active" onclick="showPage('home', event)">Overview</a>
+        <a class="nav-link" onclick="showPage('phishing', event)">Phishing Detection</a>
+        <a class="nav-link" onclick="showPage('fakenews', event)">Fake News</a>
+        <a class="nav-link" onclick="showPage('scamcall', event)">Scam Call</a>
       </div>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <header class="hero container animate-up">
-    <div class="hero-badge">Enterprise-Grade Protection</div>
-    <h1>Detect Scams with<br/>Next-Gen AI Models</h1>
-    <p>A minimalist, powerful intelligence layer designed to intercept phishing links, fake news, and fraudulent calls in real-time.</p>
-  </header>
+  <!-- ==================== HOME PAGE ==================== -->
+  <div id="page-home" class="page active">
+    <!-- Hero -->
+    <header class="hero container">
+      <div class="hero-badge">Enterprise-Grade Protection</div>
+      <h1>Detect Scams with<br />Next-Gen AI Models</h1>
+      <p>A minimalist, powerful intelligence layer designed to intercept phishing links, fake news, and fraudulent calls
+        in real-time.</p>
+    </header>
 
-  <!-- Models Overview -->
-  <section class="models-section container animate-up delay-1">
-    <h2 class="section-title">The Intelligence Engine</h2>
-    <div class="model-grid">
-      <!-- M1 -->
-      <div class="model-card">
-        <div class="model-icon">🎣</div>
-        <h3 class="model-title">URL Inspection</h3>
-        <p class="model-desc">Analyzes domain entropy, structural anomalies, and 25+ parameters to instantly flag malicious phishing links.</p>
-        <div class="model-tech">Powered by XGBoost</div>
-      </div>
-      <!-- M2 -->
-      <div class="model-card">
-        <div class="model-icon">📰</div>
-        <h3 class="model-title">Narrative Verification</h3>
-        <p class="model-desc">Evaluates linguistic patterns, sentiment, and structural credibility to distinguish authentic journalism from fabricated news.</p>
-        <div class="model-tech">Powered by DistilBERT</div>
-      </div>
-      <!-- M3 -->
-      <div class="model-card">
-        <div class="model-icon">📞</div>
-        <h3 class="model-title">Transcript Forensics</h3>
-        <p class="model-desc">Scans phone call transcripts for psychological manipulation, urgency cues, and established fraud patterns.</p>
-        <div class="model-tech">Powered by DistilBERT</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Interaction Area (Tabs) -->
-  <section class="app-hub container animate-up delay-2">
-    <div class="app-container">
-      
-      <!-- Tab Buttons -->
-      <div class="app-tabs">
-        <button class="tab-btn active" onclick="switchTab('phishing')">Phishing URL</button>
-        <button class="tab-btn" onclick="switchTab('fakenews')">Fake News</button>
-        <button class="tab-btn" onclick="switchTab('scamcall')">Scam Call</button>
-      </div>
-
-      <!-- Tab 1: Phishing -->
-      <div class="tab-content active" id="tab-phishing">
-        <div class="tab-header">
-          <h2 class="tab-title">Inspect Link</h2>
-          <p class="tab-subtitle">Paste a suspicious URL to check for phishing behavior.</p>
+    <!-- Models Overview -->
+    <section class="models-section container">
+      <h2 class="section-title">The Intelligence Engine</h2>
+      <div class="model-grid">
+        <div class="model-card">
+          <div class="model-icon">🎣</div>
+          <h3 class="model-title">Phishing Detection</h3>
+          <p class="model-desc">Analyzes domain entropy, structural anomalies, and 25+ parameters to instantly flag
+            malicious phishing links.</p>
+          <div class="model-tech">Powered by XGBoost</div>
         </div>
+        <div class="model-card">
+          <div class="model-icon">📰</div>
+          <h3 class="model-title">Fake News Detection</h3>
+          <p class="model-desc">Evaluates linguistic patterns, sentiment, and structural credibility to distinguish
+            authentic journalism from fabricated news.</p>
+          <div class="model-tech">Powered by DistilBERT</div>
+        </div>
+        <div class="model-card">
+          <div class="model-icon">📞</div>
+          <h3 class="model-title">Scam Call Detection</h3>
+          <p class="model-desc">Scans phone call transcripts for psychological manipulation, urgency cues, and
+            established fraud patterns.</p>
+          <div class="model-tech">Powered by DistilBERT</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== PHISHING PAGE ==================== -->
+  <div id="page-phishing" class="page">
+    <div class="phishing-bg"></div> <!-- Animated Scanlines -->
+
+    <div class="container phishing-layout animate-up delay-1">
+      <h2>Phishing Link Interception</h2>
+      <p>Paste a full URL below. The XGBoost Engine will instantly score domain integrity.</p>
+
+      <div class="url-bar-container">
         <div class="input-wrap">
-          <input type="url" id="phishing-input" placeholder="https://secure-login-update.example.com" maxlength="2000" oninput="updateChar('phishing')">
+          <input type="url" id="phishing-input" placeholder="https://secure-login-update.example.com" maxlength="2000"
+            oninput="updateChar('phishing')">
           <div class="char-count" id="phishing-count">0 / 2000</div>
         </div>
-        <div class="error-msg" id="phishing-error">Please enter a valid URL.</div>
         <button class="btn-submit" id="phishing-btn" onclick="analyze('phishing')">
-          <span id="phishing-btn-text">Analyze URL</span>
+          <span id="phishing-btn-text">Analyze</span>
         </button>
+      </div>
+      <div class="error-msg" id="phishing-error">Please enter a valid URL.</div>
 
-        <div class="result-panel" id="phishing-result">
-          <div class="verdict-header">
-            <div class="verdict-info" id="phishing-verdict">
-              <h3 id="phishing-label">Waiting...</h3>
-              <div class="confidence-text" id="phishing-conf"></div>
+      <!-- Result Panel -->
+      <div class="result-panel glass-panel" id="phishing-result">
+        <div class="verdict-header">
+          <div class="verdict-info" id="phishing-verdict">
+            <h3 id="phishing-label">Waiting...</h3>
+            <div class="confidence-text" id="phishing-conf"></div>
+          </div>
+        </div>
+        <div class="score-breakdown">
+          <div class="score-item">
+            <div class="score-label"><span>Safe Probability</span><span id="phishing-safe-lbl">0%</span></div>
+            <div class="track">
+              <div class="fill safe-fill" id="phishing-safe-fill"></div>
             </div>
           </div>
-          <div class="score-breakdown">
-            <div class="score-item">
-              <div class="score-label"><span>Safe Probability</span><span id="phishing-safe-lbl">0%</span></div>
-              <div class="track"><div class="fill safe-fill" id="phishing-safe-fill"></div></div>
-            </div>
-            <div class="score-item">
-              <div class="score-label"><span>Risk Probability</span><span id="phishing-risk-lbl">0%</span></div>
-              <div class="track"><div class="fill risk-fill" id="phishing-risk-fill"></div></div>
+          <div class="score-item">
+            <div class="score-label"><span>Risk Probability</span><span id="phishing-risk-lbl">0%</span></div>
+            <div class="track">
+              <div class="fill risk-fill" id="phishing-risk-fill"></div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Tab 2: Fake News -->
-      <div class="tab-content" id="tab-fakenews">
-        <div class="tab-header">
-          <h2 class="tab-title">Verify Article</h2>
-          <p class="tab-subtitle">Paste a headline or article excerpt to detect misinformation.</p>
-        </div>
+  <!-- ==================== FAKE NEWS PAGE ==================== -->
+  <div id="page-fakenews" class="page">
+    <div class="fakenews-bg"></div> <!-- Animated Pulsing Radar -->
+
+    <div class="container fakenews-layout animate-up delay-1">
+      <div class="fn-info">
+        <div class="badge">DistilBERT Engine</div>
+        <h2>Fake News<br />Detection</h2>
+        <p>Our DistilBERT narrative engine protects you by dissecting the underlying linguistic DNA of news stories. It
+          cross-references structural patterns commonly found in disinformation—such as inflammatory sentiment, logical
+          circularity, and clickbait syntax—to ensure you only consume authentic, verified journalism.</p>
+      </div>
+
+      <div class="fn-editor glass-panel">
         <div class="input-wrap">
-          <textarea id="fakenews-input" placeholder="Scientists discover that drinking bleach cures all diseases..." maxlength="5000" oninput="updateChar('fakenews')"></textarea>
+          <textarea id="fakenews-input" placeholder="Enter the news article here..." maxlength="5000"
+            oninput="updateChar('fakenews')"></textarea>
           <div class="char-count" id="fakenews-count">0 / 5000</div>
         </div>
         <button class="btn-submit" id="fakenews-btn" onclick="analyze('fakenews')">
-          <span id="fakenews-btn-text">Verify Text</span>
+          <span id="fakenews-btn-text">Verify Narrative</span>
         </button>
 
+        <!-- Result Panel -->
         <div class="result-panel" id="fakenews-result">
           <div class="verdict-header">
             <div class="verdict-info" id="fakenews-verdict">
@@ -652,31 +950,64 @@
           <div class="score-breakdown">
             <div class="score-item">
               <div class="score-label"><span>Credible Probability</span><span id="fakenews-real-lbl">0%</span></div>
-              <div class="track"><div class="fill safe-fill" id="fakenews-real-fill"></div></div>
+              <div class="track">
+                <div class="fill safe-fill" id="fakenews-real-fill"></div>
+              </div>
             </div>
             <div class="score-item">
               <div class="score-label"><span>Fake Probability</span><span id="fakenews-fake-lbl">0%</span></div>
-              <div class="track"><div class="fill risk-fill" id="fakenews-fake-fill"></div></div>
+              <div class="track">
+                <div class="fill risk-fill" id="fakenews-fake-fill"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Tab 3: Scam Call -->
-      <div class="tab-content" id="tab-scamcall">
-        <div class="tab-header">
-          <h2 class="tab-title">Analyze Transcript</h2>
-          <p class="tab-subtitle">Paste a phone call transcript to detect social engineering.</p>
+  <!-- ==================== SCAM CALL PAGE ==================== -->
+  <div id="page-scamcall" class="page">
+    <div class="scamcall-bg">
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+    </div> <!-- Audio Equalizer Wave -->
+
+    <div class="container scamcall-layout animate-up delay-1">
+      <div class="scamcall-header">
+        <h2>Scam Call Detection</h2>
+        <p style="color:var(--text-muted);">Our transcript forensics layer acts as a digital shield during phone
+          interactions. By analyzing conversation transcripts in real-time, it identifies high-pressure tactics, social
+          engineering keywords, and psychological manipulation patterns used by fraudsters.</p>
+      </div>
+
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <div class="terminal-dot r"></div>
+          <div class="terminal-dot y"></div>
+          <div class="terminal-dot g"></div>
         </div>
         <div class="input-wrap">
-          <textarea id="scamcall-input" placeholder="Hello, this is IRS. You owe taxes and will be arrested immediately if..." maxlength="5000" oninput="updateChar('scamcall')"></textarea>
-          <div class="char-count" id="scamcall-count">0 / 5000</div>
+          <textarea id="scamcall-input" placeholder="> Input voice calls transcript...&#10;" maxlength="5000"
+            oninput="updateChar('scamcall')"></textarea>
+          <div class="char-count" id="scamcall-count" style="background:#1e293b;">0 / 5000</div>
         </div>
         <button class="btn-submit" id="scamcall-btn" onclick="analyze('scamcall')">
-          <span id="scamcall-btn-text">Analyze Transcript</span>
+          <span id="scamcall-btn-text">Execute Spam</span>
         </button>
 
-        <div class="result-panel" id="scamcall-result">
+        <!-- Result Panel -->
+        <div class="result-panel" id="scamcall-result" style="background:#0f172a; border-color:#1e293b; color:#fff;">
           <div class="verdict-header">
             <div class="verdict-info" id="scamcall-verdict">
               <h3 id="scamcall-label">Waiting...</h3>
@@ -686,18 +1017,21 @@
           <div class="score-breakdown">
             <div class="score-item">
               <div class="score-label"><span>Normal Probability</span><span id="scamcall-safe-lbl">0%</span></div>
-              <div class="track"><div class="fill safe-fill" id="scamcall-safe-fill"></div></div>
+              <div class="track" style="background:#1e293b;">
+                <div class="fill safe-fill" id="scamcall-safe-fill"></div>
+              </div>
             </div>
             <div class="score-item">
               <div class="score-label"><span>Fraud Probability</span><span id="scamcall-fraud-lbl">0%</span></div>
-              <div class="track"><div class="fill risk-fill" id="scamcall-fraud-fill"></div></div>
+              <div class="track" style="background:#1e293b;">
+                <div class="fill risk-fill" id="scamcall-fraud-fill"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
-  </section>
+  </div>
 
   <footer>
     <div class="container">
@@ -709,31 +1043,32 @@
   <script>
     const API = "http://127.0.0.1:5000";
 
-    // Tab Switching Logic
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-      
-      event.target.classList.add('active');
-      document.getElementById(`tab-${tabId}`).classList.add('active');
+    function showPage(pageId, event) {
+      if (event) event.preventDefault();
+
+      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+      if (event) { event.target.classList.add('active'); }
+      else { document.querySelector('.nav-link').classList.add('active'); }
+
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Character Counter
     function updateChar(type) {
       const el = document.getElementById(`${type}-input`);
       const countEl = document.getElementById(`${type}-count`);
       countEl.textContent = `${el.value.length} / ${el.maxLength}`;
-      if(type === 'phishing') {
+      if (type === 'phishing') {
         document.getElementById('phishing-error').classList.remove('visible');
       }
     }
 
-    // Basic URL Validator
     function isValidUrl(str) {
       try { new URL(str); return true; } catch (_) { return false; }
     }
 
-    // Unified Analysis Function
     async function analyze(type) {
       const inputEl = document.getElementById(`${type}-input`);
       const val = inputEl.value.trim();
@@ -744,11 +1079,10 @@
         return;
       }
 
-      // UI Loading State
       const btn = document.getElementById(`${type}-btn`);
       const btnText = document.getElementById(`${type}-btn-text`);
       const originalText = btnText.textContent;
-      
+
       btn.disabled = true;
       btnText.textContent = "Processing...";
 
@@ -758,7 +1092,6 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: val })
         });
-        
         const data = await res.json();
         renderResult(type, data);
       } catch (err) {
@@ -769,9 +1102,8 @@
       }
     }
 
-    // Render Results seamlessly
     function renderResult(type, data) {
-      if(data.error) {
+      if (data.error) {
         alert("Engine Error: " + data.error);
         return;
       }
@@ -781,41 +1113,35 @@
       const labelEl = document.getElementById(`${type}-label`);
       const confEl = document.getElementById(`${type}-conf`);
 
-      // Reset styles
       verdictBox.className = "verdict-info";
-      
+
       if (type === 'phishing') {
         const isSafe = data.label === "Safe";
         verdictBox.classList.add(isSafe ? "safe" : "danger");
         labelEl.innerHTML = isSafe ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Safe URL` : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Phishing Detected`;
-        
+
         document.getElementById('phishing-safe-lbl').textContent = data.safe_score.toFixed(1) + "%";
         document.getElementById('phishing-safe-fill').style.width = data.safe_score + "%";
-        
         document.getElementById('phishing-risk-lbl').textContent = data.risk_score.toFixed(1) + "%";
         document.getElementById('phishing-risk-fill').style.width = data.risk_score + "%";
       }
-      
       else if (type === 'fakenews') {
         const isReal = data.label === "Real";
         verdictBox.classList.add(isReal ? "safe" : "danger");
         labelEl.innerHTML = isReal ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Authentic Report` : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Fabricated Content`;
-        
+
         document.getElementById('fakenews-real-lbl').textContent = data.real_score.toFixed(1) + "%";
         document.getElementById('fakenews-real-fill').style.width = data.real_score + "%";
-        
         document.getElementById('fakenews-fake-lbl').textContent = data.fake_score.toFixed(1) + "%";
         document.getElementById('fakenews-fake-fill').style.width = data.fake_score + "%";
       }
-
       else if (type === 'scamcall') {
         const isNormal = data.label === "NORMAL";
         verdictBox.classList.add(isNormal ? "safe" : "danger");
         labelEl.innerHTML = isNormal ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Normal Call` : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Fraudulent Call`;
-        
+
         document.getElementById('scamcall-safe-lbl').textContent = data.safe_score.toFixed(1) + "%";
         document.getElementById('scamcall-safe-fill').style.width = data.safe_score + "%";
-        
         document.getElementById('scamcall-fraud-lbl').textContent = data.fraud_score.toFixed(1) + "%";
         document.getElementById('scamcall-fraud-fill').style.width = data.fraud_score + "%";
       }
@@ -824,15 +1150,12 @@
       panel.classList.add('visible');
     }
 
-    // Keyboard Shortcuts
     document.querySelectorAll('input, textarea').forEach(el => {
       el.addEventListener('keydown', e => {
-        if((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-          const type = el.id.split('-')[0];
-          analyze(type);
-        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { analyze(el.id.split('-')[0]); }
       });
     });
   </script>
 </body>
+
 </html>
